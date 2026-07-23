@@ -7,7 +7,7 @@ floor_level int not null,
 floor_name varchar (100) not null
 );
 
-CREATE TABLE room (floor
+CREATE TABLE room (
 room_id int auto_increment PRIMARY KEY,
 room_capacity int not null,
 room_number int not null,
