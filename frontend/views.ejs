@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Senior Citizen Facility</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center min-vh-100">
+  <div class="container" style="max-width: 420px;">
+    <div class="card shadow border-0">
+      <div class="card-body p-4 text-center">
+        <h3 class="fw-bold mb-3">Staff Login</h3>
+        <% if (error) { %>
+          <div class="alert alert-danger py-2"><%= error %></div>
+        <% } %>
+        <form action="/login" method="POST" class="text-start">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Username</label>
+            <input type="text" name="username" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Password</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 py-2">Log In</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+views/floors.ejs
+Notice how primary keys (floor_id) are stored in <input type="hidden"> tags so they are never rendered in HTML table headers or cells.
+
+HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Floors</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">Senior Facility</a>
+      <div class="navbar-nav">
+        <a class="nav-link active" href="/floors">Floors</a>
+        <a class="nav-link" href="/rooms">Rooms</a>
+        <a class="nav-link" href="/residents">Residents</a>
+        <a class="nav-link text-danger ms-auto" href="/logout">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2 class="fw-bold mb-4">Manage Floors</h2>
+
+    <!-- Add Floor Form -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h5 class="card-title fw-bold">Add New Floor</h5>
+        <form action="/floors/add" method="POST" class="row g-3 mt-1">
+          <div class="col-md-5">
+            <label class="form-label">Floor Level</label>
+            <input type="number" name="floor_level" class="form-control" required>
+          </div>
+          <div class="col-md-5">
+            <label class="form-label">Floor Name</label>
+            <input type="text" name="floor_name" class="form-control" required>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-success w-100">Add Floor</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Floors List Table (NO ID COLUMN DISPLAYED) -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>Floor Level</th>
+              <th>Floor Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% floors.forEach(function(floor) { %>
+              <tr>
+                <form action="/floors/update" method="POST">
+                  <!-- Primary Key stored strictly in hidden input -->
+                  <input type="hidden" name="floor_id" value="<%= floor.floor_id %>">
+                  <td>
+                    <input type="number" name="floor_level" value="<%= floor.floor_level %>" class="form-control form-control-sm" required>
+                  </td>
+                  <td>
+                    <input type="text" name="floor_name" value="<%= floor.floor_name %>" class="form-control form-control-sm" required>
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-sm btn-primary me-1">Update</button>
+                    <button type="submit" formaction="/floors/delete" method="POST" class="btn btn-sm btn-danger">Delete</button>
+                  </td>
+                </form>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+views/rooms.ejs
+Includes a dropdown for selecting an existing floor when adding or updating a room.
+
+HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Rooms</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">Senior Facility</a>
+      <div class="navbar-nav">
+        <a class="nav-link" href="/floors">Floors</a>
+        <a class="nav-link active" href="/rooms">Rooms</a>
+        <a class="nav-link" href="/residents">Residents</a>
+        <a class="nav-link text-danger ms-auto" href="/logout">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2 class="fw-bold mb-4">Manage Rooms</h2>
+
+    <!-- Add Room Form -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h5 class="card-title fw-bold">Add New Room</h5>
+        <form action="/rooms/add" method="POST" class="row g-3 mt-1">
+          <div class="col-md-3">
+            <label class="form-label">Room Number</label>
+            <input type="number" name="room_number" class="form-control" placeholder="e.g. 201" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Capacity</label>
+            <input type="number" name="room_capacity" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Assigned Floor</label>
+            <select name="room_floor" class="form-select" required>
+              <option value="" disabled selected>Select Floor Level</option>
+              <% floors.forEach(function(floor) { %>
+                <option value="<%= floor.floor_id %>">
+                  <%= floor.floor_name %> (Level <%= floor.floor_level %>)
+                </option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-success w-100">Add Room</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Rooms List Table (NO ID COLUMN DISPLAYED) -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>Room Number</th>
+              <th>Capacity</th>
+              <th>Floor</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% rooms.forEach(function(room) { %>
+              <tr>
+                <form action="/rooms/update" method="POST">
+                  <!-- Primary Key stored strictly in hidden input -->
+                  <input type="hidden" name="room_id" value="<%= room.room_id %>">
+                  <td>
+                    <input type="number" name="room_number" value="<%= room.room_number %>" class="form-control form-control-sm" required>
+                  </td>
+                  <td>
+                    <input type="number" name="room_capacity" value="<%= room.room_capacity %>" class="form-control form-control-sm" required>
+                  </td>
+                  <td>
+                    <select name="room_floor" class="form-select form-select-sm" required>
+                      <% floors.forEach(function(floor) { %>
+                        <option value="<%= floor.floor_id %>" <%= room.room_floor === floor.floor_id ? 'selected' : '' %>>
+                          <%= floor.floor_name %> (Level <%= floor.floor_level %>)
+                        </option>
+                      <% }); %>
+                    </select>
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-sm btn-primary me-1">Update</button>
+                    <button type="submit" formaction="/rooms/delete" method="POST" class="btn btn-sm btn-danger">Delete</button>
+                  </td>
+                </form>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+views/residents.ejs
+Includes a dropdown for selecting an existing room number when managing residents.
+
+HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Residents</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">Senior Facility</a>
+      <div class="navbar-nav">
+        <a class="nav-link" href="/floors">Floors</a>
+        <a class="nav-link" href="/rooms">Rooms</a>
+        <a class="nav-link active" href="/residents">Residents</a>
+        <a class="nav-link text-danger ms-auto" href="/logout">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2 class="fw-bold mb-4">Manage Residents</h2>
+
+    <!-- Add Resident Form -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h5 class="card-title fw-bold">Add New Resident</h5>
+        <form action="/residents/add" method="POST" class="row g-3 mt-1">
+          <div class="col-md-3">
+            <label class="form-label">First Name</label>
+            <input type="text" name="res_first_name" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Last Name</label>
+            <input type="text" name="res_last_name" class="form-control" required>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Age</label>
+            <input type="number" name="res_age" class="form-control" required>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Assigned Room</label>
+            <select name="res_room" class="form-select" required>
+              <option value="" disabled selected>Select Room</option>
+              <% rooms.forEach(function(room) { %>
+                <option value="<%= room.room_id %>">
+                  Room #<%= room.room_number %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-success w-100">Add Resident</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Residents List Table (NO ID COLUMN DISPLAYED) -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Age</th>
+              <th>Room Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% residents.forEach(function(resident) { %>
+              <tr>
+                <form action="/residents/update" method="POST">
+                  <!-- Primary Key stored strictly in hidden input -->
+                  <input type="hidden" name="res_id" value="<%= resident.res_id %>">
+                  <td>
+                    <input type="text" name="res_first_name" value="<%= resident.res_first_name %>" class="form-control form-control-sm" required>
+                  </td>
+                  <td>
+                    <input type="text" name="res_last_name" value="<%= resident.res_last_name %>" class="form-control form-control-sm" required>
+                  </td>
+                  <td>
+                    <input type="number" name="res_age" value="<%= resident.res_age %>" class="form-control form-control-sm" required>
+                  </td>
+                  <td>
+                    <select name="res_room" class="form-select form-select-sm" required>
+                      <% rooms.forEach(function(room) { %>
+                        <option value="<%= room.room_id %>" <%= resident.res_room === room.room_id ? 'selected' : '' %>>
+                          Room #<%= room.room_number %>
+                        </option>
+                      <% }); %>
+                    </select>
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-sm btn-primary me-1">Update</button>
+                    <button type="submit" formaction="/residents/delete" method="POST" class="btn btn-sm btn-danger">Delete</button>
+                  </td>
+                </form>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
